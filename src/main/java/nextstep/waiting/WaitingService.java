@@ -18,10 +18,12 @@ public class WaitingService {
     private final ScheduleDao scheduleDao;
     private final ReservationDao reservationDao;
     private final WaitingDao waitingDao;
-    public String create(Member member, WaitingRequest waitingRequest) {
+
+    public WaitingCreateResultDTO create(Member member, WaitingRequest waitingRequest) {
         Schedule schedule = scheduleDao.findById(waitingRequest.getScheduleId());
         if (schedule == null) {
-            throw new NullPointerException();}
+            throw new NullPointerException();
+        }
 
         List<Reservation> reservation = reservationDao.findByScheduleId(schedule.getId());
         if (!reservation.isEmpty()) {
@@ -30,13 +32,17 @@ public class WaitingService {
                     member
             );
 
-            return "/reservation-waitings/" + waitingDao.save(newWaiting);
+            Long id = waitingDao.save(newWaiting);
+            return new WaitingCreateResultDTO(true, id);
         }
+
         Reservation newReservation = new Reservation(
                 schedule,
                 member
         );
-        return "/reservations/" + reservationDao.save(newReservation);
+
+        Long id = reservationDao.save(newReservation);
+        return new WaitingCreateResultDTO(false, id);
     }
 
 

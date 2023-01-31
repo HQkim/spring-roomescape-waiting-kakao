@@ -27,8 +27,13 @@ public class WaitingController {
         if (member == null) {
             throw new AuthenticationException();
         }
-        String location = waitingService.create(memberService.findById(member.getId()), waitingRequest);
-        return ResponseEntity.created(URI.create(location)).build();
+        WaitingCreateResultDTO result = waitingService.create(memberService.findById(member.getId()), waitingRequest);
+
+        if (result.isCreated()) {
+            return ResponseEntity.created(URI.create("/reservation-waitings/" + result.getId())).build();
+        }
+
+        return ResponseEntity.created(URI.create("/reservations/" + result.getId())).build();
     }
 
     @DeleteMapping("/reservation-waitings/{id}")
